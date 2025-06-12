@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -24,7 +23,9 @@ export default function Purchase() {
   const [cryptoMethod, setCryptoMethod] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const product = products[id as keyof typeof products];
+  // Convert string ID to number and validate
+  const productId = id ? parseInt(id, 10) : null;
+  const product = productId && productId in products ? products[productId as keyof typeof products] : null;
 
   if (!product) {
     return <div>Product not found</div>;

@@ -1,4 +1,3 @@
-
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,10 @@ export default function Invoice() {
   
   const email = searchParams.get("email");
   const crypto = searchParams.get("crypto");
-  const product = products[id as keyof typeof products];
+  
+  // Convert string ID to number and validate
+  const productId = id ? parseInt(id, 10) : null;
+  const product = productId && productId in products ? products[productId as keyof typeof products] : null;
   
   const invoiceNumber = `INV-${Date.now()}`;
   const transactionId = `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;

@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -155,7 +154,10 @@ const productDetails = {
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const product = productDetails[id as keyof typeof productDetails];
+  
+  // Convert string ID to number and validate
+  const productId = id ? parseInt(id, 10) : null;
+  const product = productId && productId in productDetails ? productDetails[productId as keyof typeof productDetails] : null;
 
   if (!product) {
     return <div>Product not found</div>;
