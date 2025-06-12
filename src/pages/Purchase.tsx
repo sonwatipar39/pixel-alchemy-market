@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -8,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Shield, CreditCard, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { CryptoPayment } from "@/components/CryptoPayment";
 
 const products = {
   1: { title: "Crypto Investment Mastery", price: 99 },
@@ -21,9 +23,8 @@ export default function Purchase() {
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [cryptoMethod, setCryptoMethod] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
 
-  // Convert string ID to number and validate
   const productId = id ? parseInt(id, 10) : null;
   const product = productId && productId in products ? products[productId as keyof typeof products] : null;
 
@@ -31,7 +32,7 @@ export default function Purchase() {
     return <div>Product not found</div>;
   }
 
-  const handlePurchase = async () => {
+  const handleInitiatePayment = () => {
     if (!email || !cryptoMethod) {
       toast({
         title: "Missing Information",
@@ -40,20 +41,50 @@ export default function Purchase() {
       });
       return;
     }
+    setShowPayment(true);
+  };
 
-    setIsProcessing(true);
-    
-    // Simulate payment processing
-    setTimeout(() => {
-      setIsProcessing(false);
-      navigate(`/invoice/${id}?email=${encodeURIComponent(email)}&crypto=${cryptoMethod}`);
-    }, 3000);
+  const handlePaymentComplete = () => {
+    navigate(`/invoice/${id}?email=${encodeURIComponent(email)}&crypto=${cryptoMethod}`);
+  };
 
+  const handlePaymentExpired = () => {
+    setShowPayment(false);
     toast({
-      title: "Processing Payment",
-      description: "Please wait while we process your crypto payment...",
+      title: "Payment Expired",
+      description: "Please start a new payment session.",
+      variant: "destructive",
     });
   };
+
+  if (showPayment) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-20 px-4">
+        <div className="max-w-2xl mx-auto">
+          <Button
+            onClick={() => setShowPayment(false)}
+            variant="outline"
+            className="mb-8 border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white"
+          >
+            ← Back to Order
+          </Button>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <CryptoPayment
+              amount={product.price}
+              currency={cryptoMethod}
+              onPaymentComplete={handlePaymentComplete}
+              onPaymentExpired={handlePaymentExpired}
+            />
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-20 px-4">
@@ -154,23 +185,23 @@ export default function Purchase() {
                 <div className="bg-slate-700/50 p-4 rounded-lg">
                   <h3 className="text-white font-semibold mb-2">Payment Security</h3>
                   <ul className="text-sm text-gray-300 space-y-1">
-                    <li>✅ End-to-end encrypted transactions</li>
-                    <li>✅ Multi-signature wallet security</li>
-                    <li>✅ Instant payment confirmation</li>
-                    <li>✅ 24/7 payment support</li>
+                    <li>✅ Real-time payment tracking</li>
+                    <li>✅ 15-minute secure payment window</li>
+                    <li>✅ QR code for easy mobile payments</li>
+                    <li>✅ Instant course activation</li>
                   </ul>
                 </div>
 
                 <Button
-                  onClick={handlePurchase}
-                  disabled={isProcessing || !email || !cryptoMethod}
+                  onClick={handleInitiatePayment}
+                  disabled={!email || !cryptoMethod}
                   className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg py-3"
                 >
-                  {isProcessing ? "Processing Payment..." : `Pay ${product.price} USD in Crypto`}
+                  Proceed to Crypto Payment
                 </Button>
 
                 <div className="text-center text-sm text-gray-400">
-                  <p>By proceeding, you agree to our Terms of Service and Privacy Policy</p>
+                  <p>Secure payment processing • 15-minute payment window</p>
                 </div>
               </div>
             </Card>
